@@ -53,8 +53,11 @@ if __name__ == '__main__':
                     data_crc32 = zlib.crc32(decrypted_data)
                     data_size = len(decrypted_data)
 
-                    compressed_data = b'\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x0b' + compressed_data[2:-4] + struct.pack('I I', data_crc32, data_size)
-                    encoded_data = base64.b64encode(compressed_data, altchars=b'-_')
+                    compressed_data = b'\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\x0b' + \
+                        compressed_data[2:-4] + \
+                        struct.pack('I I', data_crc32, data_size)
+                    encoded_data = base64.b64encode(
+                        compressed_data, altchars=b'-_')
                     encrypted_data = xor_bytes(encoded_data, 11)
 
                     with open(os.path.join(SAVE_FILE_PATH, save_file), 'wb') as f:
@@ -75,17 +78,21 @@ if __name__ == '__main__':
                         encrypted_data = f.read()
 
                     decrypted_data = xor_bytes(encrypted_data, 11)
-                    decoded_data = base64.b64decode(decrypted_data, altchars=b'-_')
-                    decompressed_data = zlib.decompress(decoded_data[10:], -zlib.MAX_WBITS)
+                    decoded_data = base64.b64decode(
+                        decrypted_data, altchars=b'-_')
+                    decompressed_data = zlib.decompress(
+                        decoded_data[10:], -zlib.MAX_WBITS)
 
                     if prettify_xml:
                         try:
                             xml_dom = minidom.parseString(decompressed_data)
-                            decompressed_data = xml_dom.toprettyxml(indent='\t', encoding='utf-8')
+                            decompressed_data = xml_dom.toprettyxml(
+                                indent='\t', encoding='utf-8')
                         except Exception as err:
-                            print(f'Failed to prettify {save_file}.xml! File will remain unprettified.')
+                            print(
+                                f'Failed to prettify {save_file}.xml! File will remain unprettified.')
 
-                    with open(f'{save_file}.xml', 'wb') as f:
+                    with open(f'{save_file}', 'wb') as f:
                         f.write(decompressed_data)
 
                     print('Done!')
